@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    if: github.event.pull_request.merged == 'true'
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
 
     runs-on: ubuntu-latest
 
@@ -23,3 +23,10 @@ jobs:
               mvn clean install
               mvn validate -DbumpMinor
               mvn versions:commit
+      - name: Create release branch
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Create release branch
+          branch: release
+          create_branch: true
+          file_pattern: pom.xml

@@ -1,4 +1,4 @@
-name: Java CI
+name: Prepare release
 
 on:
   push:

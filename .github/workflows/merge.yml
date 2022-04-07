@@ -45,7 +45,7 @@ jobs:
            target_branch: main
            github_token: ${{ github.token }}
 
-       - name: Merge staging -> uat
+       - name: Merge release -> develop
          uses: devmasx/merge-branch@master
          with:
            type: now

@@ -6,7 +6,7 @@ on:
       - test
 
 jobs:
-  build:
+  build-and-test:
 
     runs-on: ubuntu-latest
 
@@ -18,8 +18,20 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
       - name: Build with Maven
-        run: |
-              mvn clean install
+        run: mvn clean install
+  increase-version:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+      - name: Build with Maven
+        run:  |
               mvn validate -DbumpMinor
               mvn versions:commit
       - name: Create release branch
@@ -29,3 +41,30 @@ jobs:
           branch: release
           create_branch: true
           file_pattern: pom.xml
+  sync-branches:
+    needs: increase-version
+    runs-on: ubuntu-latest
+    steps:
+       - uses: actions/checkout@release
+
+       - name: Merge release -> main
+         uses: devmasx/merge-branch@master
+         with:
+           type: now
+           from_branch: release
+           target_branch: main
+           github_token: ${{ github.token }}
+
+       - name: Merge staging -> uat
+         uses: devmasx/merge-branch@master
+         with:
+           type: now
+           from_branch: release
+           target_branch: develop
+           github_token: ${{ github.token }}
+
+       - name: Remove release branch
+         uses: dawidd6/action-delete-branch@v3
+         with:
+           github_token: ${{github.token}}
+           branches: release

@@ -32,26 +32,47 @@ jobs:
     needs: increase-version
     runs-on: ubuntu-latest
     steps:
-       - name: Fetch release branch
-         uses: actions/checkout@master
-         with:
-           ref: release
 
-       - name: Merge release -> main
-         uses: devmasx/merge-branch@master
-         with:
-           type: now
-           from_branch: release
-           target_branch: main
-           github_token: ${{ github.token }}
+       - name: Merge staging -> main
+         uses: repo-sync/pull-request@v2
+           id: open-pr
+           with:
+             source_branch: release
+             pr_title: 'Merging To Master'
+             destination_branch: main
+             pr_label: ignore-for-kpis
+             github_token: ${{ secrets.GITHUB_TOKEN }}
+               - uses: peter-evans/enable-pull-request-automerge@v1
+                 if: steps.open-pr.outputs.pr_number != 0
+                 with:
+                   token: ${{ secrets.RELEASE_AUTOMATION_PAT }}
+                   pull-request-number: ${{steps.open-pr.outputs.pr_number}}
+               - uses: juliangruber/approve-pull-request-action@v1
+                 if: steps.open-pr.outputs.pr_number != 0
+                 with:
+                   github-token: ${{ secrets.RELEASE_AUTOMATION_PAT }}
+                   number: ${{steps.open-pr.outputs.pr_number}}
 
-       - name: Merge release -> develop
-         uses: devmasx/merge-branch@master
-         with:
-           type: now
-           from_branch: release
-           target_branch: develop
-           github_token: ${{ github.token }}
+       - name: Merge staging -> develop
+         uses: repo-sync/pull-request@v2
+           id: open-pr
+           with:
+             source_branch: release
+             pr_title: 'Merging To Develop'
+             destination_branch: develop
+             pr_label: ignore-for-kpis
+             github_token: ${{ secrets.GITHUB_TOKEN }}
+             - uses: peter-evans/enable-pull-request-automerge@v1
+               if: steps.open-pr.outputs.pr_number != 0
+               with:
+                 token: ${{ secrets.RELEASE_AUTOMATION_PAT }}
+                 pull-request-number: ${{steps.open-pr.outputs.pr_number}}
+             - uses: juliangruber/approve-pull-request-action@v1
+               if: steps.open-pr.outputs.pr_number != 0
+               with:
+                 github-token: ${{ secrets.RELEASE_AUTOMATION_PAT }}
+                 number: ${{steps.open-pr.outputs.pr_number}}
+
 
        - name: Remove release branch
          uses: dawidd6/action-delete-branch@v3

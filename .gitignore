@@ -1,3 +1,5 @@
 .idea
 consoleApp.iml
+**.class
+target/**
 

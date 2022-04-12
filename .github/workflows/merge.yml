@@ -12,5 +12,5 @@ jobs:
       - run: |
           echo "Deploying to production server on branch $GITHUB_REF"
           echo "head_ref: $GITHUB_HEAD_REF"
-          echo "event name: $GITHUB_EVENT_NAME
+          echo "event name: $GITHUB_EVENT_NAME"
           echo "ref name: $GITHUB_REF_NAME"

@@ -12,7 +12,9 @@ jobs:
       - uses: actions/checkout@v3
         name: checkout repository
 
-      - name: get reference
+      - name: get git references
         run: |
+          echo "current branch"
           git branch
+          echo "all branches"
           git show-branch -a

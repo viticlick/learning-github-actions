@@ -26,12 +26,12 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
-      - name: Build with Maven
+      - name: Read project version
         id: read-version
         run: |
           echo "::set-output name=project-version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
           mvn help:evaluate -Dexpression=project.version -q -DforceStdout
-      - name: Write result
+      - name: Write project version
         run: |
           echo "variables read:"
           echo "${{join(steps.read-version.outputs.*, '\n')}}"

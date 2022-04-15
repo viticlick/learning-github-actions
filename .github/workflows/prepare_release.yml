@@ -16,6 +16,8 @@ on:
 jobs:
   update-version:
     runs-on: ubuntu-latest
+    outputs:
+      release-branch: release/v${{steps.read-version.outputs.project-version}}
     steps:
       - uses: actions/checkout@v3
         name: checkout repository
@@ -33,10 +35,10 @@ jobs:
         id: read-version
         run: echo "::set-output name=project-version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
   
-      - name: Create branch release/v${{ github.event.inputs.increase-version }}
+      - name: Create branch release/v${{steps.read-version.outputs.project-version}}
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: Create release branch
+          commit_message: Create branch release/v${{steps.read-version.outputs.project-version}}
           branch: release/v${{steps.read-version.outputs.project-version}}
           create_branch: true
           file_pattern: pom.xml
@@ -44,24 +46,24 @@ jobs:
     needs: update-version
     runs-on: ubuntu-latest
     steps:
-      - name: Merge release/v${{steps.read-version.outputs.project-version}} -> main
-        run: echo "merge release/v${{steps.read-version.outputs.project-version}} -> main"
+      - name: Merge ${{needs.update-version.outputs.release-branch}} -> main
+        run: echo "merge ${{needs.update-version.outputs.release-branch}} -> main"
 
   sync-develop-branch:
     needs: update-version
     runs-on: ubuntu-latest
     steps:
-      - name: Merge release/v${{steps.read-version.outputs.project-version}} -> develop
-        run: echo "merge release/v${{steps.read-version.outputs.project-version}} -> develop"
+      - name: Merge ${{needs.update-version.outputs.release-branch}} -> develop
+        run: echo "merge ${{needs.update-version.outputs.release-branch}} -> develop"
   
   delete-release-branch:
     needs: [sync-main-branch, sync-develop-branch]
     runs-on: ubuntu-latest
     steps:
-      - name: Delete branch release/v${{steps.read-version.outputs.project-version}}
+      - name: Delete branch ${{needs.update-version.outputs.release-branch}}
         uses: dawidd6/action-delete-branch@v3.1.0
         with:
-          branches: release/v${{steps.read-version.outputs.project-version}}
+          branches: ${{needs.update-version.outputs.release-branch}}
 
 
 

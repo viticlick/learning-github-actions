@@ -63,6 +63,7 @@ jobs:
       - name: Delete branch ${{needs.update-version.outputs.release-branch}}
         uses: dawidd6/action-delete-branch@v3.1.0
         with:
+          github_token: ${{github.token}}
           branches: ${{needs.update-version.outputs.release-branch}}
 
 

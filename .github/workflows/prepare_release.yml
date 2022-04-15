@@ -28,8 +28,8 @@ jobs:
 
       - name: Set new version
         run: |
-          echo "mvn validate -Dbump${{ github.event.inputs.tags }}"
-          mvn validate -Dbump${{ github.event.inputs.tags }}
+          echo "mvn validate -Dbump${{ github.event.inputs.increase-version }}"
+          mvn validate -Dbump${{ github.event.inputs.increase-version }}
 
       - name: Read new project version
         id: read-version

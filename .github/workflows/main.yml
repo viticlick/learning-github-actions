@@ -29,7 +29,7 @@ jobs:
       - name: Build with Maven
         id: read-version
         run: |
-          echo "::set-output name=project-version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)\n"
+          echo "::set-output name=project-version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
           mvn help:evaluate -Dexpression=project.version -q -DforceStdout
       - name: Write result
         run: |

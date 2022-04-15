@@ -57,14 +57,18 @@ jobs:
         run: echo "merge ${{needs.update-version.outputs.release-branch}} -> develop"
   
   delete-release-branch:
-    needs: [sync-main-branch, sync-develop-branch]
+    needs: [update-version, sync-main-branch, sync-develop-branch]
     runs-on: ubuntu-latest
     steps:
+      - name: Echo remove branch
+        run: echo "delete branch ${{needs.update-version.outputs.release-branch}}"
+        
       - name: Delete branch ${{needs.update-version.outputs.release-branch}}
         uses: dawidd6/action-delete-branch@v3.1.0
         with:
           github_token: ${{github.token}}
           branches: ${{needs.update-version.outputs.release-branch}}
+          soft_fail: false
 
 
 

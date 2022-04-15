@@ -27,7 +27,9 @@ jobs:
           distribution: 'adopt'
 
       - name: Set new version
-        run: mvn validate -Dbump${{ github.event.inputs.tags }}
+        run: |
+          echo "mvn validate -Dbump${{ github.event.inputs.tags }}"
+          mvn validate -Dbump${{ github.event.inputs.tags }}
 
       - name: Read new project version
         id: read-version

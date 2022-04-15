@@ -1,0 +1,38 @@
+name: Prepare release
+
+on:
+  workflow_dispatch:
+    inputs:
+      increase-version:
+        description: 'Release level'
+        required: true
+        default: 'Minor'
+        type: choice
+        options:
+          - Major
+          - Minor
+          - Patch
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        name: checkout repository
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+
+      - name: Set new version
+        run: mvn validate -Dbump${{ github.event.inputs.tags }}
+
+      - name: Read new project version
+        id: read-version
+        run: echo "::set-output name=project-version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+      - name: Write project version
+        run: |
+          echo "project version:"
+          echo "${{steps.read-version.outputs.project-version}}"

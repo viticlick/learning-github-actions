@@ -1,4 +1,4 @@
-name: Prepare release
+name: Merge workflow
 
 on:
   push:

@@ -37,6 +37,6 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Create release branch
-          branch: release/${{steps.read-version.outputs.project-version}}
+          branch: release/v${{steps.read-version.outputs.project-version}}
           create_branch: true
           file_pattern: pom.xml

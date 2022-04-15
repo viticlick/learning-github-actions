@@ -8,4 +8,10 @@ class HelloWorldTest {
     fun `Hello test`() {
         assert(true)
     }
+
+    @Test
+    fun `testAddition`() {
+        assert(true)
+        assert(1 + 1 == 2)
+    }
 }

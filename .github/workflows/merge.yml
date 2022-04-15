@@ -1,4 +1,4 @@
-name: Prepare release
+name: Merge workflow
 
 on:
   push:
@@ -6,76 +6,15 @@ on:
       - test
 
 jobs:
-  increase-version:
-
+  show-refs:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
-      - name: Set up JDK 11
-        uses: actions/setup-java@v3
-        with:
-          java-version: '11'
-          distribution: 'adopt'
-      - name: Build with Maven
-        run:  |
-              mvn validate -DbumpMinor
-              mvn versions:commit
-      - name: Create release branch
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Create release branch
-          branch: release
-          create_branch: true
-          file_pattern: pom.xml
-  sync-branches:
-    needs: increase-version
-    runs-on: ubuntu-latest
-    steps:
+        name: checkout repository
 
-       - name: Merge staging -> main
-         uses: repo-sync/pull-request@v2
-           id: open-pr
-           with:
-             source_branch: release
-             pr_title: 'Merging To Master'
-             destination_branch: main
-             pr_label: ignore-for-kpis
-             github_token: ${{ secrets.GITHUB_TOKEN }}
-               - uses: peter-evans/enable-pull-request-automerge@v1
-                 if: steps.open-pr.outputs.pr_number != 0
-                 with:
-                   token: ${{ secrets.RELEASE_AUTOMATION_PAT }}
-                   pull-request-number: ${{steps.open-pr.outputs.pr_number}}
-               - uses: juliangruber/approve-pull-request-action@v1
-                 if: steps.open-pr.outputs.pr_number != 0
-                 with:
-                   github-token: ${{ secrets.RELEASE_AUTOMATION_PAT }}
-                   number: ${{steps.open-pr.outputs.pr_number}}
-
-       - name: Merge staging -> develop
-         uses: repo-sync/pull-request@v2
-           id: open-pr
-           with:
-             source_branch: release
-             pr_title: 'Merging To Develop'
-             destination_branch: develop
-             pr_label: ignore-for-kpis
-             github_token: ${{ secrets.GITHUB_TOKEN }}
-             - uses: peter-evans/enable-pull-request-automerge@v1
-               if: steps.open-pr.outputs.pr_number != 0
-               with:
-                 token: ${{ secrets.RELEASE_AUTOMATION_PAT }}
-                 pull-request-number: ${{steps.open-pr.outputs.pr_number}}
-             - uses: juliangruber/approve-pull-request-action@v1
-               if: steps.open-pr.outputs.pr_number != 0
-               with:
-                 github-token: ${{ secrets.RELEASE_AUTOMATION_PAT }}
-                 number: ${{steps.open-pr.outputs.pr_number}}
-
-
-       - name: Remove release branch
-         uses: dawidd6/action-delete-branch@v3
-         with:
-           github_token: ${{github.token}}
-           branches: release
+      - name: get git references
+        run: |
+          echo "current branch"
+          git branch
+          echo "all branches"
+          git show-branch -a

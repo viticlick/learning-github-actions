@@ -32,11 +32,40 @@ jobs:
       - name: Read new project version
         id: read-version
         run: echo "::set-output name=project-version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
-          
-      - name: Create release branch
+  
+  push-release-branch:
+    needs: update-version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create branch release/v${{ github.event.inputs.increase-version }}
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Create release branch
           branch: release/v${{steps.read-version.outputs.project-version}}
           create_branch: true
           file_pattern: pom.xml
+  sync-main-branch:
+    needs: push-release-branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge release/v${{ github.event.inputs.increase-version }} -> main
+        run: echo "merge relase/v${{ github.event.inputs.increase-version }} -> main"
+
+  sync-develop-branch:
+    needs: push-release-branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge release/v${{ github.event.inputs.increase-version }} -> develop
+        run: echo "merge relase/v${{ github.event.inputs.increase-version }} -> develop"
+  
+  delete-release-branch:
+    needs: [sync-main-branch, sync-develop-branch]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete branch release/v${{ github.event.inputs.increase-version }}
+        uses: dawidd6/action-delete-branch@v3.1.0
+        with:
+          branches: release/v${{ github.event.inputs.increase-version }}
+
+
+

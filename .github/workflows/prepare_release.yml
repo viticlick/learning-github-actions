@@ -27,14 +27,16 @@ jobs:
           distribution: 'adopt'
 
       - name: Set new version
-        run: |
-          echo "mvn validate -Dbump${{ github.event.inputs.increase-version }}"
-          mvn validate -Dbump${{ github.event.inputs.increase-version }}
+        run: mvn validate -Dbump${{ github.event.inputs.increase-version }}
 
       - name: Read new project version
         id: read-version
         run: echo "::set-output name=project-version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
-      - name: Write project version
-        run: |
-          echo "project version:"
-          echo "${{steps.read-version.outputs.project-version}}"
+          
+      - name: Create release branch
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Create release branch
+          branch: release/${{steps.read-version.outputs.project-version}}
+          create_branch: true
+          file_pattern: pom.xml
